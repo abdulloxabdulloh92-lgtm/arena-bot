@@ -2501,51 +2501,23 @@ async def h_photo_file_id(msg: Message):
         f"✅ <b>File ID:</b>\n<code>{fid}</code>\n\n"
         f"Bu qiymatni CHARACTER_IMAGES yoki SPLINTER_FILE_ID ga yozing."
     )
-#  RENDER UCHUN SOXTA WEB SERVER
-# ───────────────────────────────────────────────────────────
-async def handle(request):
-    from aiohttp import web
-    return web.Response(text="OK")
 
-async def start_web_server():
-    from aiohttp import web
-    import os
-    app = web.Application()
-    app.router.add_get("/", handle)
-    runner = web.AppRunner(app)
-    await runner.setup()
-    
-    # Render beradigan portni oladi, bo'lmasa 10000
-    port = int(os.environ.get("PORT", 10000))
-    site = web.TCPSite(runner, "0.0.0.0", port)
-    await site.start()
-    # Log ob'ekti sizda 'log' deb nomlangan bo'lsa:
-    try:
-        log.info(f"🌐 Web server {port}-portda ishga tushdi")
-    except:
-        print(f"🌐 Web server {port}-portda ishga tushdi")
 # ═══════════════════════════════════════════════════════════
 #  MAIN
 # ═══════════════════════════════════════════════════════════
 async def main():
     if not BOT_TOKEN:
         logger.error("❌ BOT_TOKEN topilmadi! .env faylda BOT_TOKEN=... qo'ying."); return
-    
     await init_db()
     logger.info("✅ Database tayyor")
-
-    # --- MANA SHU QISMNI QO'SHING ---
-    await start_web_server() 
-    # --------------------------------
-
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp  = Dispatcher(storage=MemoryStorage())
     dp.include_router(router)
-    
     logger.info("⚔️ Fight Arena Bot v7.0 ishga tushdi!")
-    
     try:
-        # drop_pending_updates=True eski xabarlarni o'chirib yuboradi, bu yaxshi
         await dp.start_polling(bot, allowed_updates=["message","callback_query"], drop_pending_updates=True)
     finally:
         await bot.session.close()
+ 
+if __name__ == "__main__":
+    asyncio.run(main())
